@@ -17,9 +17,10 @@ You can get the database started by running `docker-compose up`
 
 Once running the Go app, you can make a CURL request as follows:
 
-```curl
+```bash
  curl -X POST -H "Content-Type: application/json" -d '{"username":"john", "password":"secret"}' http://localhost:8080/user
 ```
 
 ## Solutions
+
 you can find the solutions [here](./solutions.md)

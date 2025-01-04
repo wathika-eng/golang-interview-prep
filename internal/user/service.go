@@ -4,8 +4,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+
 	_ "github.com/lib/pq"
+	"github.com/matthewjamesboyle/golang-interview-prep/internal/config"
 )
+
+var env = config.Envs
+var DATABASE_URL = fmt.Sprintf("%s://%s:%s@%s:%s/%s", env.DB_TYPE, env.DB_USER, env.DB_PASSWORD, env.DB_HOST, env.DB_PORT, env.DB_NAME)
 
 type service struct {
 	dbUser     string
@@ -13,8 +19,8 @@ type service struct {
 }
 
 func NewService(dbUser, dbPassword string) (*service, error) {
-	if dbUser == "" {
-		return nil, errors.New("dbUser was empty")
+	if dbUser == "" || dbPassword == "" {
+		return nil, errors.New("empty field found")
 	}
 	return &service{dbUser: dbUser, dbPassword: dbPassword}, nil
 }
@@ -25,12 +31,16 @@ type User struct {
 }
 
 func (s *service) AddUser(u User) (string, error) {
-	db, err := sql.Open("postgres", "postgres://admin:admin@localhost/test_repo?sslmode=disable")
+	db, err := sql.Open("postgres", DATABASE_URL)
 	if err != nil {
-		panic(err)
+		log.Fatalf("error connecting to the db: %s\n", err)
 	}
-	defer db.Close()
 
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("db is down: %s", err)
+	}
 	var id string
 	q := "INSERT INTO users (username, password) VALUES ('" + u.Name + "', '" + u.Password + "') RETURNING id"
 
