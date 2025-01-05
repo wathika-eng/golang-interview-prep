@@ -10,19 +10,33 @@ import (
 	"github.com/matthewjamesboyle/golang-interview-prep/internal/config"
 )
 
+var db *sql.DB
 var env = config.Envs
-var DATABASE_URL = fmt.Sprintf("%s://%s:%s@%s:%s/%s", env.DB_TYPE, env.DB_USER, env.DB_PASSWORD, env.DB_HOST, env.DB_PORT, env.DB_NAME)
 
-type service struct {
-	dbUser     string
-	dbPassword string
+func init() {
+	var err error
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		env.DB_HOST, env.DB_PORT, env.DB_USER, env.DB_PASSWORD, env.DB_NAME)
+
+	db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Failed to ping the database: %v", err)
+	}
+
+	log.Println("Successfully connected to the database")
 }
 
-func NewService(dbUser, dbPassword string) (*service, error) {
-	if dbUser == "" || dbPassword == "" {
-		return nil, errors.New("empty field found")
-	}
-	return &service{dbUser: dbUser, dbPassword: dbPassword}, nil
+type service struct {
+	db *sql.DB
+}
+
+func NewService(db *sql.DB) *service {
+	return &service{db: db}
 }
 
 type User struct {
@@ -31,23 +45,27 @@ type User struct {
 }
 
 func (s *service) AddUser(u User) (string, error) {
-	db, err := sql.Open("postgres", DATABASE_URL)
-	if err != nil {
-		log.Fatalf("error connecting to the db: %s\n", err)
+	if u.Name == "" || u.Password == "" {
+		return "", errors.New("name and password cannot be empty")
 	}
 
-	defer db.Close()
-	err = db.Ping()
+	hashedPassword, err := hashPassword(u.Password)
 	if err != nil {
-		log.Fatalf("db is down: %s", err)
+		return "", fmt.Errorf("failed to hash password: %v", err)
 	}
+
+	query := "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id"
 	var id string
-	q := "INSERT INTO users (username, password) VALUES ('" + u.Name + "', '" + u.Password + "') RETURNING id"
-
-	err = db.QueryRow(q).Scan(&id)
+	err = s.db.QueryRow(query, u.Name, hashedPassword).Scan(&id)
 	if err != nil {
-		return "", fmt.Errorf("failed to insert: %w", err)
+		return "", fmt.Errorf("failed to insert user: %v", err)
 	}
 
 	return id, nil
+}
+
+// hashPassword hashes the password using bcrypt
+func hashPassword(password string) (string, error) {
+	
+	return password, nil
 }

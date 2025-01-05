@@ -1,13 +1,47 @@
-version: '3.9'
 services:
   postgres:
     image: postgres:latest
+    container_name: go-interview-postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
     restart: always
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: env.user
-      POSTGRES_PASSWORD: env.password
-      POSTGRES_DB: env.db
     volumes:
       - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    container_name: go-interview-migrate
+    volumes:
+      - ./migrations:/migrations
+    command:
+      - "-path=/migrations/"
+      - "-database"
+      - "postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable"
+      - "up"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    container_name: golang-interview-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

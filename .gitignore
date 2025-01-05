@@ -15,7 +15,7 @@
 *.dylib
 .env
 .env.local
-
+tmp/
 # Test binary, built with `go test -c`
 *.test
 tmp/
@@ -25,6 +25,8 @@ main
 *.out
 *.txt
 *.bin
+data/
+bin/
 .env
 # Dependency directories (remove the comment below to include it)
 # vendor/

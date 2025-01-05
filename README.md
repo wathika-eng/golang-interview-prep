@@ -13,7 +13,7 @@ well as a pair programming exercise.
 
 ## Getting Started
 
-You can get the database started by running `docker-compose up`
+You can get the database started by running `docker-compose up --build`
 
 Once running the Go app, you can make a CURL request as follows:
 
