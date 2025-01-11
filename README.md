@@ -13,13 +13,46 @@ well as a pair programming exercise.
 
 ## Getting Started
 
+Copy the .env.example file to .env and fill in the values.
+
+```bash
+cp .env.example .env
+```
+
+Ensure you have Go installed:
+
+```bash
+go version
+```
+
+Then
+
+```bash
+go mod tidy
+go run main.go
+```
+
+Ensure you have Postgres installed:
+
+````bash
+Ensure you have Docker installed:
+
+```bash
+docker --version
+docker compose --version
+````
+
+Ensure you have Docker Compose installed:
+
+````bash
+
 You can get the database started by running `docker-compose up --build`
 
 Once running the Go app, you can make a CURL request as follows:
 
 ```bash
  curl -X POST -H "Content-Type: application/json" -d '{"username":"john", "password":"secret"}' http://localhost:8080/user
-```
+````
 
 ## Solutions
 
