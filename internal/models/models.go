@@ -12,6 +12,7 @@ import (
 
 var ctx = context.Background()
 
+// defines the User model/table
 type User struct {
 	ID          uuid.UUID `json:"id"`
 	WorkID      int       `json:"work_id" binding:"required"`
@@ -23,6 +24,7 @@ type User struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+// creates a user in the database
 func CreateUser(u *User) (int, error) {
 	u.ID = uuid.Must(uuid.NewV7())
 	u.CreatedAt = time.Now()
@@ -38,6 +40,7 @@ func CreateUser(u *User) (int, error) {
 	return u.WorkID, nil
 }
 
+// fetches a user from the DB given the workID
 func GetUser(workID int) (*User, error) {
 	var user User
 	query := `
@@ -64,6 +67,7 @@ func GetUser(workID int) (*User, error) {
 	return &user, nil
 }
 
+// fetches all users from the DB
 func GetUsers() ([]User, error) {
 	users := make([]User, 0, 10)
 	query := `
@@ -96,6 +100,5 @@ func GetUsers() ([]User, error) {
 		}
 		return nil, errors.New("error scanning user: " + err.Error())
 	}
-
 	return users, nil
 }

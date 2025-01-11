@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,15 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
 	"github.com/golodash/galidator"
+	"github.com/matthewjamesboyle/golang-interview-prep/internal/db"
 	"github.com/matthewjamesboyle/golang-interview-prep/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	g          = galidator.New()
-	customizer = g.Validator(models.User{})
+	g           = galidator.New()
+	customizer  = g.Validator(models.User{})
+	ctx         = context.Background()
+	redisClient = db.RedisInit()
 )
 
+// test if API is up
 func Test(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "server is up and running"})
 }
@@ -25,7 +31,6 @@ func Test(c *gin.Context) {
 // CreateUser handles user creation and stores the user in the database
 func CreateUser(c *gin.Context) {
 	var user models.User
-
 	// Bind incoming JSON to the user struct
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
@@ -58,6 +63,7 @@ func CreateUser(c *gin.Context) {
 	})
 }
 
+// fetch a user by ID
 func GetUserByID(c *gin.Context) {
 	ID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -81,18 +87,41 @@ func GetUserByID(c *gin.Context) {
 	})
 }
 
+// fetch all users from the DB
 func GetUsers(c *gin.Context) {
-	user, err := models.GetUsers()
-	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{
-			"status_code": http.StatusBadRequest,
-			"error":       err.Error(),
+	val, err := redisClient.Get(ctx, "users").Result()
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status_code": http.StatusOK,
+			"users":       val,
 		})
 		return
 	}
-	c.JSON(200, gin.H{
-		"status_code": 200,
-		"message":     user,
+	users, err := models.GetUsers()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
+			"error":       "Failed to fetch users from database: " + err.Error(),
+		})
+		return
+	}
+	userData, err := json.Marshal(users)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"status_code": http.StatusInternalServerError,
+			"error":       "Failed to marshal users: " + err.Error(),
+		})
+		return
+	}
+	err = redisClient.Set(ctx, "users", userData, 100000).Err()
+	if err != nil {
+		log.Printf("failed to cache users: %v\n", err)
+	}
+
+	// Return the users
+	c.JSON(http.StatusOK, gin.H{
+		"status_code": http.StatusOK,
+		"message":     users,
 	})
 }
 

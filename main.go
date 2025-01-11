@@ -14,7 +14,6 @@ func main() {
 	log.Println(time.Now().Format("13:01:46"))
 	// Start the server in a goroutine
 	go api.StartServer()
-
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 

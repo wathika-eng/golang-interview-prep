@@ -54,6 +54,9 @@ func CloseDBConnection() {
 	}
 }
 
+// creates users table upon first initialization of the DB
+//
+// will later use migrate package from Golang
 func createTable(db *pgxpool.Pool) {
 	query := `
 	CREATE TABLE IF NOT EXISTS users (

@@ -1,3 +1,4 @@
+// package Config holds configuration values for the application
 package config
 
 import (
@@ -16,9 +17,11 @@ type Config struct {
 	DB_PORT        string
 	DB_NAME        string
 	PORT           string
+	REDIS_URL      string
 	MIGRATION_PATH string
 }
 
+// get environment variables from .env file
 var Envs = initConfig()
 
 // InitConfig initializes and returns the application configuration
@@ -36,6 +39,7 @@ func initConfig() *Config {
 		DB_PORT:        getEnv("DB_PORT", "5432"),
 		DB_NAME:        getEnv("DB_NAME", "interview"),
 		PORT:           getEnv("PORT", ":8080"),
+		REDIS_URL:      getEnv("REDIS_URL", "localhost:6379"),
 		MIGRATION_PATH: getEnv("MIGRATION_PATH", "file://internal/migrations"),
 	}
 }
