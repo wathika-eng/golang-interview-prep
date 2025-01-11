@@ -1,5 +1,5 @@
 # Description: Makefile for the API
-# @PHONY: run build clean
+@PHONY: run build clean
 
 # Run the API
 run:
@@ -23,7 +23,7 @@ clean:
 
 # Live Reload
 watch:
-	@templ generate
+	@go mod tidy
 	@if command -v air > /dev/null; then \
             air; \
             echo "Watching...";\

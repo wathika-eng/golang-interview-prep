@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
@@ -101,4 +102,87 @@ func GetUsers() ([]User, error) {
 		return nil, errors.New("error scanning user: " + err.Error())
 	}
 	return users, nil
+}
+
+func UpdateUser(workID int, username, email, phoneNumber string) (*User, error) {
+	var count int
+	checkQuery := `SELECT COUNT(*) FROM users WHERE work_id = $1`
+	err := db.DbPool.QueryRow(ctx, checkQuery, workID).Scan(&count)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if user exists: %w", err)
+	}
+	if count == 0 {
+		return nil, fmt.Errorf("user with ID %d not found", workID)
+	}
+	var user User
+
+	query := `
+	UPDATE users
+	SET username = $2, email = $3, phone_number = $4, updated_at = NOW()
+	WHERE work_id = $1
+	RETURNING id, work_id, username, email, phone_number, created_at, updated_at
+	`
+	err = db.DbPool.QueryRow(ctx, query, workID, username, email, phoneNumber).Scan(
+		&user.ID,
+		&user.WorkID,
+		&user.UserName,
+		&user.Email,
+		&user.PhoneNumber,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, errors.New("error scanning user: " + err.Error())
+	}
+
+	return &user, nil
+}
+
+func UpdatePassword(workID int, password string) (int, error) {
+	var user User
+	query := `
+	UPDATE users
+	SET password = $2 updated_at=NOW()
+	WHERE work_id = $1
+	RETURNING id, work_id, username, email, phone_number, created_at, updated_at
+	`
+	err := db.DbPool.QueryRow(ctx, query, workID, password).Scan(
+		&user.ID,
+		&user.WorkID,
+		&user.UserName,
+		&user.Email,
+		&user.PhoneNumber,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, errors.New("user not found")
+		}
+		return 0, errors.New("error scanning user: " + err.Error())
+	}
+	return workID, nil
+}
+
+func DeleteUser(workID int) error {
+	var count int
+	checkQuery := `SELECT COUNT(*) FROM users WHERE work_id = $1`
+	err := db.DbPool.QueryRow(ctx, checkQuery, workID).Scan(&count)
+	if err != nil {
+		return fmt.Errorf("failed to check if user exists: %w", err)
+	}
+	if count == 0 {
+		return fmt.Errorf("user with ID %d not found", workID)
+	}
+	query := `
+	DELETE FROM users WHERE work_id = $1
+	`
+	_, err = db.DbPool.Exec(ctx, query, workID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user with work_id %d: %w", workID, err)
+	}
+	return nil
 }

@@ -18,14 +18,14 @@ func StartServer() {
 	db.StartDB()
 	defer db.CloseDBConnection()
 	server := gin.Default()
-
-	// Define the API version group
 	v1 := server.Group("/api/v1")
 	{
 		v1.GET("/test", routes.Test)
 		v1.POST("/user", routes.CreateUser)
 		v1.GET("/user/:id", routes.GetUserByID)
 		v1.GET("/users", routes.GetUsers)
+		v1.DELETE("/user/:id", routes.DeleteUser)
+		v1.PATCH("/user/:id", routes.UpdateUser)
 	}
 	log.Printf("Starting HTTP server on http://localhost%s/api/v1/test\n", env.PORT)
 

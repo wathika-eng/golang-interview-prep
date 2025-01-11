@@ -125,6 +125,66 @@ func GetUsers(c *gin.Context) {
 	})
 }
 
+func UpdateUser(c *gin.Context) {
+	var user models.User
+	workID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
+			"message":     "Invalid user ID format",
+		})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
+			"message":     customizer.DecryptErrors(err),
+		})
+		return
+	}
+
+	updatedUser, err := models.UpdateUser(workID, user.UserName, user.Email, user.PhoneNumber)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status_code": http.StatusNotFound,
+			"message":     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status_code": http.StatusOK,
+		"message":     fmt.Sprintf("User with ID %d updated successfully", workID),
+		"user":        updatedUser,
+	})
+}
+
+func DeleteUser(c *gin.Context) {
+	workID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
+			"message":     "invalid ID format",
+		})
+		return
+	}
+
+	err = models.DeleteUser(workID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"status_code": http.StatusInternalServerError,
+			"message":     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status_code": http.StatusOK,
+		"message":     fmt.Sprintf("user with ID %d deleted successfully", workID),
+	})
+}
+
 // hashpass hashes the user's password using bcrypt
 func hashpass(pass string) string {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
