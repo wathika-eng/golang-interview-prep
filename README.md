@@ -44,16 +44,60 @@ docker compose --version
 
 Ensure you have Docker Compose installed:
 
-````bash
+```bash
+docker --version
+docker-compose --version
+```
 
 You can get the database started by running `docker-compose up --build`
 
 Once running the Go app, you can make a CURL request as follows:
 
 ```bash
- curl -X POST -H "Content-Type: application/json" -d '{"username":"john", "password":"secret"}' http://localhost:8080/user
-````
+curl -X POST http://localhost:8080/api/v1/user \
+     -H "Content-Type: application/json" \
+     -d '{
+           "email": "johndoe@gmail.com",
+           "phone_number": "+2547123456",
+           "username": "john_doe",
+           "work_id": 12345678,
+           "password": "12345556,"
+         }'
+
+```
+
+GET request (get a user using work_id)
+
+```bash
+curl -X GET http://localhost:8080/api/v1/users
+```
+
+PATCH request (work_id cannot be updated)
+
+```bash
+curl -X PATCH http://localhost:8080/users/12345678 \
+     -H "Content-Type: application/json" \
+     -d '{
+           "email": "newjohndoe@gmail.com"
+           "phone_number": "+25474658",
+            "username": "new_john_doe"
+        }'
+```
+
+DELETE request (delete a user using work_id)
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/users/12345678
+```
+
+<!-- Test non-existent user
+
+```bash -->
 
 ## Solutions
 
 you can find the solutions [here](./solutions.md)
+
+```
+
+```

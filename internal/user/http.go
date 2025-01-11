@@ -185,6 +185,14 @@ func DeleteUser(c *gin.Context) {
 	})
 }
 
+func NotFound(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{
+		"status_code": http.StatusNotFound,
+		"message":     "route not found",
+	})
+	// c.Redirect(200, routes.)
+}
+
 // hashpass hashes the user's password using bcrypt
 func hashpass(pass string) string {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)

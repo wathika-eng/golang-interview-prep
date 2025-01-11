@@ -27,6 +27,7 @@ func StartServer() {
 		v1.DELETE("/user/:id", routes.DeleteUser)
 		v1.PATCH("/user/:id", routes.UpdateUser)
 	}
+	server.NoRoute(routes.NotFound)
 	log.Printf("Starting HTTP server on http://localhost%s/api/v1/test\n", env.PORT)
 
 	// Start the server using Gin's built-in method

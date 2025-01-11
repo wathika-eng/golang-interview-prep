@@ -11,13 +11,13 @@ run:
 build:
 	@echo "Building..."
 	@go mod tidy
-	@go build -o bin/main main.go
+	@go build -o main main.go
 	@echo "Build complete"
 
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	@rm -rf bin
+	@rm -rf main
 	@echo "Clean complete"
 
 

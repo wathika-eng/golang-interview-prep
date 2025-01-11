@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   postgres:
     image: postgres:latest
@@ -19,19 +21,17 @@ services:
       timeout: 10s
       retries: 5
 
-  migrate:
-    image: migrate/migrate
-    container_name: go-interview-migrate
-    volumes:
-      - ./migrations:/migrations
-    command:
-      - "-path=/migrations/"
-      - "-database"
-      - "postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable"
-      - "up"
-    depends_on:
-      postgres:
-        condition: service_healthy
+  redis:
+    image: redis:6.2.6-alpine3.14
+    container_name: go-interview-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   app:
     container_name: golang-interview-app
@@ -43,5 +43,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      - postgres
+      - redis
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/test"]
+      interval: 10s
+      retries: 5
