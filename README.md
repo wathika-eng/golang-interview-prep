@@ -32,15 +32,16 @@ go mod tidy
 go run main.go
 ```
 
-Ensure you have Postgres installed:
+<!-- Ensure you have Postgres installed:
 
-````bash
+````bash -->
+
 Ensure you have Docker installed:
 
 ```bash
 docker --version
 docker compose --version
-````
+```
 
 Ensure you have Docker Compose installed:
 
@@ -87,7 +88,7 @@ curl -X PATCH http://localhost:8080/users/12345678 \
 DELETE request (delete a user using work_id)
 
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/users/12345678
+curl -X DELETE http://localhost:8080/api/v1/user/12345678
 ```
 
 <!-- Test non-existent user

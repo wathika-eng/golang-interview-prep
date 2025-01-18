@@ -20,7 +20,7 @@ var (
 func StartDB() {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		env.DB_HOST, env.DB_PORT, env.DB_USER, env.DB_PASSWORD, env.DB_NAME)
-
+	fmt.Println(connStr)
 	poolConfig, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		log.Fatalf("failed to parse database configuration: %v", err)

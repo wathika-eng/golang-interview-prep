@@ -119,7 +119,7 @@ func GetUsers(c *gin.Context) {
 	}
 
 	// Return the users
-	c.JSON(http.StatusOK, gin.H{
+	c.IndentedJSON(http.StatusOK, gin.H{
 		"status_code": http.StatusOK,
 		"message":     users,
 	})
