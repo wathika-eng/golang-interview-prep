@@ -1,6 +1,6 @@
 # golang interview prep
 
-## Goal of this repo.
+## Goal of this repo
 
 This repo contains Golang code that does not follow best practises, contains bugs and security issues. It is intended to
 be used as an interview exercise or a practise exercise for jr/mid-level Go engineers.
@@ -12,6 +12,12 @@ As an exercise, you could try identifying and correcting some of the issues in t
 well as a pair programming exercise.
 
 ## Getting Started
+
+Clone the repo:
+
+```bash
+git clone https://github.com/wathika-eng/golang-interview-prep && cd golang-interview-prep
+```
 
 Copy the .env.example file to .env and fill in the values.
 
@@ -32,22 +38,24 @@ go mod tidy
 go run main.go
 ```
 
-<!-- Ensure you have Postgres installed:
-
-````bash -->
-
-Ensure you have Docker installed:
+Get a postgresql database and redis running, either via docker, locally or on a cloud provider(<https://neon.tech>)
 
 ```bash
-docker --version
-docker compose --version
+pg_isready # check if postgres is running, should return something like /var/run/postgresql:5432 - accepting connections
+redis-cli ping # check if redis is running, should return PONG
 ```
 
 Ensure you have Docker Compose installed:
 
 ```bash
 docker --version
-docker-compose --version
+docker compose version
+```
+
+Run postgresql database and redis using docker-compose
+
+```bash
+COMPOSE_BAKE=true docker compose up --build
 ```
 
 You can get the database started by running `docker-compose up --build`
@@ -76,13 +84,14 @@ curl -X GET http://localhost:8080/api/v1/users
 PATCH request (work_id cannot be updated)
 
 ```bash
-curl -X PATCH http://localhost:8080/users/12345678 \
+curl -X PATCH http://localhost:8080/api/v1/user/12345678 \
      -H "Content-Type: application/json" \
      -d '{
-           "email": "newjohndoe@gmail.com"
+           "email": "newjohndoe@gmail.com",
            "phone_number": "+25474658",
-            "username": "new_john_doe"
+           "username": "new_john_doe"
         }'
+
 ```
 
 DELETE request (delete a user using work_id)

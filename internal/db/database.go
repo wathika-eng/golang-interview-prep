@@ -19,7 +19,7 @@ var (
 // StartDB initializes the database connection pool and prepares the queries.
 func StartDB() {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		env.DB_HOST, env.DB_PORT, env.DB_USER, env.DB_PASSWORD, env.DB_NAME)
+		env.POSTGRES_HOST, env.POSTGRES_PORT, env.POSTGRES_USER, env.POSTGRES_PASSWORD, env.POSTGRES_NAME)
 	fmt.Println(connStr)
 	poolConfig, err := pgxpool.ParseConfig(connStr)
 	if err != nil {

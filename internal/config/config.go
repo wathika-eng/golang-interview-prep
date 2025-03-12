@@ -10,15 +10,15 @@ import (
 
 // Config holds configuration values for the application
 type Config struct {
-	DB_TYPE        string
-	DB_USER        string
-	DB_PASSWORD    string
-	DB_HOST        string
-	DB_PORT        string
-	DB_NAME        string
-	PORT           string
-	REDIS_URL      string
-	MIGRATION_PATH string
+	POSTGRES_TYPE     string
+	POSTGRES_USER     string
+	POSTGRES_PASSWORD string
+	POSTGRES_HOST     string
+	POSTGRES_PORT     string
+	POSTGRES_NAME     string
+	PORT              string
+	REDIS_URL         string
+	MIGRATION_PATH    string
 }
 
 // get environment variables from .env file
@@ -32,15 +32,15 @@ func initConfig() *Config {
 	}
 
 	return &Config{
-		DB_TYPE:        getEnv("DB_TYPE", "postgres"),
-		DB_USER:        getEnv("DB_USER", "postgres"),
-		DB_PASSWORD:    getEnv("DB_PASSWORD", ""),
-		DB_HOST:        getEnv("DB_HOST", "localhost"),
-		DB_PORT:        getEnv("DB_PORT", "5432"),
-		DB_NAME:        getEnv("DB_NAME", "interview"),
-		PORT:           getEnv("PORT", ":8080"),
-		REDIS_URL:      getEnv("REDIS_URL", "localhost:6379"),
-		MIGRATION_PATH: getEnv("MIGRATION_PATH", "file://internal/migrations"),
+		POSTGRES_TYPE:     getEnv("POSTGRES_TYPE", "postgres"),
+		POSTGRES_USER:     getEnv("POSTGRES_USER", "postgres"),
+		POSTGRES_PASSWORD: getEnv("POSTGRES_PASSWORD", ""),
+		POSTGRES_HOST:     getEnv("POSTGRES_HOST", "postgres"),
+		POSTGRES_PORT:     getEnv("POSTGRES_PORT", "5432"),
+		POSTGRES_NAME:     getEnv("POSTGRES_NAME", "postgres"),
+		PORT:              getEnv("PORT", ":8080"),
+		REDIS_URL:         getEnv("REDIS_URL", "localhost:6379"),
+		MIGRATION_PATH:    getEnv("MIGRATION_PATH", "file://internal/migrations"),
 	}
 }
 

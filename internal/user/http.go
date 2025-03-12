@@ -113,6 +113,14 @@ func GetUsers(c *gin.Context) {
 		})
 		return
 	}
+	if len(userData) <= 0 {
+		c.IndentedJSON(http.StatusOK, gin.H{
+			"status_code": http.StatusOK,
+			"users":       users,
+			"message":     "no users in the database",
+		})
+		return
+	}
 	err = redisClient.Set(ctx, "users", userData, 100000).Err()
 	if err != nil {
 		log.Printf("failed to cache users: %v\n", err)
@@ -121,12 +129,18 @@ func GetUsers(c *gin.Context) {
 	// Return the users
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"status_code": http.StatusOK,
-		"message":     users,
+		"message":     "users found in the database",
+		"users":       users,
 	})
 }
 
 func UpdateUser(c *gin.Context) {
-	var user models.User
+	type updateUser struct {
+		// WorkID      int    `json:"work_id" binding:"required"`
+		UserName    string `json:"username" binding:"required"`
+		Email       string `json:"email" binding:"required,email"`
+		PhoneNumber string `json:"phone_number" binding:"required,e164"`
+	}
 	workID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -136,15 +150,16 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var u updateUser
+	if err := c.ShouldBindJSON(&u); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status_code": http.StatusBadRequest,
-			"message":     customizer.DecryptErrors(err),
+			"message":     err.Error(),
 		})
 		return
 	}
-
-	updatedUser, err := models.UpdateUser(workID, user.UserName, user.Email, user.PhoneNumber)
+	log.Println(workID)
+	updatedUser, err := models.UpdateUser(workID, u.UserName, u.Email, u.PhoneNumber)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status_code": http.StatusNotFound,
@@ -152,6 +167,7 @@ func UpdateUser(c *gin.Context) {
 		})
 		return
 	}
+	// implement unsetting cache
 
 	c.JSON(http.StatusOK, gin.H{
 		"status_code": http.StatusOK,

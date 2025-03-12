@@ -20,7 +20,7 @@ func RedisInit() *redis.Client {
 	ctx := context.Background()
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
-		log.Printf("Failed to connect to Redis: %v\n", err)
+		log.Fatalf("Failed to connect to Redis: %v\n", err)
 	}
 
 	fmt.Println("Successfully connected to Redis!")
