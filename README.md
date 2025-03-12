@@ -60,6 +60,8 @@ COMPOSE_BAKE=true docker compose up --build
 
 You can get the database started by running `docker-compose up --build`
 
+Live URL => <http://162.245.188.225:8080/api/v1/users>
+
 Once running the Go app, you can make a CURL request as follows:
 
 ```bash
